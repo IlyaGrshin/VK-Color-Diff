@@ -1,0 +1,7 @@
+{
+  "name": "VK Color Diff",
+  "id": "895684723555067115",
+  "api": "1.0.0",
+  "main": "dist/code.js",
+  "ui": "dist/ui.html"
+}

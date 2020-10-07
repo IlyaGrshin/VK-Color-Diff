@@ -1,0 +1,65 @@
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
+
+    body {
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+        line-height: 16px;
+        padding: 8px;
+    }
+    
+    input[type="search"] {
+        width: 100%;
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+        line-height: 16px;
+        color: black;
+        padding: 9px 8px 7px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        box-sizing: border-box;
+        border-radius: 2px;
+        outline: none;
+    }
+
+    input[type="search"]::placeholder {
+        color: rgba(0, 0, 0, 0.3);
+    }
+
+    input[type="search"]:hover::placeholder {
+        color: rgba(0, 0, 0, 0.4);
+    }
+
+    input[type="search"]:focus {
+        padding: 8px 7px 6px;
+        border: 2px solid #18A0FB;
+        border-radius: 1px;
+        color: black;
+    }
+
+    input[type="search"]:focus::placeholder {
+        color: rgba(0, 0, 0, 0.4);
+    }
+
+    .content {
+        font-size: 13px;
+        width: 100%;
+        padding: 36px 0;
+        text-align: center;
+    }
+
+    .closestColor {
+        padding: 2px 0;
+        border-bottom: 1px dashed #cecece;
+        cursor: pointer;
+    }
+
+    .closestColor:hover {
+        background: #f1f1f1;
+        border-bottom: 1px dashed #c5c5c5;
+    }
+</style>
+<div id="body">
+    <input class="search" type="search" placeholder="Введите hex..." />
+    <div class="content"></div>
+</div>
+
