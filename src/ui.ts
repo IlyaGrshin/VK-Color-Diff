@@ -43,7 +43,7 @@ search.addEventListener ('input', () => {
     }
 })
 
-async function searchColor (value:any) {
+async function searchColor (value: any) {
     let paletteWeb = await palleteWeb()
     let palette = []
     for (let color in paletteWeb) {
@@ -73,18 +73,18 @@ async function palleteWeb () {
     return data
 }
 
-function hexChecker (color:any) {
+function hexChecker (color: any) {
     color = color.replace('#', '')
     let hex = (color.length > 7) ? hexAToRGB(color) : hexToRGB(color)
     return hex
 }
 
-function hexAToRGB (hex:any) {
+function hexAToRGB (hex: any) {
     hex = hex.slice(2,8)
     return hexToRGB(hex)
 }
 
-  function hexToRGB(hex:any) {
+  function hexToRGB(hex: any) {
     var bigint = parseInt(hex, 16)
     var r = (bigint >> 16) & 255
     var g = (bigint >> 8) & 255
