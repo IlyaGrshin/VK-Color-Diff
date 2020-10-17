@@ -1,6 +1,16 @@
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
 
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
+
+    :root {
+        --select-offset: 0px;
+    }
+
     body {
         font-family: 'Inter', sans-serif;
         font-size: 12px;
@@ -40,6 +50,46 @@
         color: rgba(0, 0, 0, 0.4);
     }
 
+    select {
+        -webkit-appearance: none;
+        background-color: transparent;
+        border: none;
+        padding: 0;
+        margin: 0;
+        outline: none;
+        cursor: pointer;
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+        line-height: 16px;
+    }
+
+    .select {
+        display: inline-grid;
+        grid-template-areas: "select";
+        align-items: center;
+        padding: 0 0 10px 0;
+        cursor: pointer;
+    }
+
+    .select:after {
+        margin-right: var(--select-offset);
+        content: "";
+        width: 8px;
+        height: 5px;
+        background-image: url("data:image/svg+xml,%3Csvg width='8' height='5' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M3.646 4.354l-3-3 .708-.708L4 3.293 6.646.646l.708.708-3 3L4 4.707l-.354-.353z' fill='%23000'/%3E%3C/svg%3E");
+        justify-self: end;
+        opacity: 0.3;
+        margin-top: -2px;
+    }
+
+    .select:hover:after {
+        opacity: 1;
+    }
+
+    .select select, .select::after {
+        grid-area: select; 
+    }
+
     .content {
         font-size: 13px;
         width: 100%;
@@ -59,7 +109,15 @@
     }
 </style>
 <div id="body">
-    <input class="search" type="search" placeholder="Введите hex..." />
+    <div class="header">
+        <div class="select">
+            <select class="selectMode">
+                <option value="web">Web</option>
+                <option value="mobile">Mobile</option>
+            </select>
+        </div>
+    </div>
+    <input class="search" type="search" placeholder="Введите hex или выберите элемент" />
     <div class="content"></div>
 </div>
 

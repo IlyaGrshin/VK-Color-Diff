@@ -1,4 +1,17 @@
-figma.showUI(__html__, { width: 300, height: 150 });
+figma.showUI(__html__, { width: 300, height: 170 });
+
+figma.ui.onmessage = async (action) => {
+    switch (action.type) {
+        case 'setPaletteMode':
+            await figma.clientStorage.setAsync('paletteMode', action.value)
+            break;
+
+        case 'getPaletteMode':
+            figma.clientStorage.getAsync('paletteMode').then((value) => {
+                figma.ui.postMessage({ type: 'getPaletteMode', value })
+            })
+    }
+}
 
 figma.on('selectionchange', () => {
     if (figma.currentPage.selection.length) {
@@ -13,6 +26,6 @@ figma.on('selectionchange', () => {
 })
 
 async function getFillFromLayer(layer) {
-    let fill = await layer.fills;
-    return fill;
+    let fill = await layer.fills
+    return fill
 }
