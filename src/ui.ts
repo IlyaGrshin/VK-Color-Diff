@@ -1,8 +1,21 @@
 var diff = require('color-diff')
 
-var search = document.getElementsByClassName('search')[0]
+var search = document.getElementsByClassName('search')[0] as HTMLInputElement
 var content = document.getElementsByClassName('content')[0]
 var closestColor = document.getElementsByClassName('closestColor')[0]
+
+window.addEventListener('message', async (event) => {
+    if (event.data.pluginMessage.type === 'color') {
+        const color = event.data.pluginMessage.layerColor
+        color.r = Math.round(color.r * 255);
+        color.g = Math.round(color.g * 255);
+        color.b = Math.round(color.b * 255);
+        
+        let hex = RGBToHex(color.r, color.g, color.b)
+        search.value = hex;
+        searchColor(hex)
+    }
+})
 
 search.addEventListener ('input', function() {
     if (this.value.length == 6) {
@@ -25,7 +38,7 @@ async function searchColor (value:any) {
 }
 
 async function palleteWeb () {
-    let url = 'https://raw.githubusercontent.com/VKCOM/Appearance/master/main.valette/palette_web.json'
+    let url = 'https://raw.githubusercontent.com/VKCOM/Appearance/master/main.valette/palette.json'
     let response = await fetch(url)
     let data = await response.json()
 
@@ -58,6 +71,21 @@ function hexAToRGB (hex:any) {
         'G': g,
         'B': b
     }
+}
+
+function RGBToHex (r, g, b) {
+    r = r.toString(16);
+    g = g.toString(16);
+    b = b.toString(16);
+  
+    if (r.length == 1)
+      r = '0' + r;
+    if (g.length == 1)
+      g = '0' + g;
+    if (b.length == 1)
+      b = '0' + b;
+  
+    return r + g + b;
 }
 
 function getKeyByValue(object, value) {
