@@ -38,7 +38,7 @@ async function searchColor (value:any) {
 }
 
 async function palleteWeb () {
-    let url = 'https://raw.githubusercontent.com/VKCOM/Appearance/master/main.valette/palette.json'
+    let url = 'https://raw.githubusercontent.com/VKCOM/Appearance/master/main.valette/palette_web.json'
     let response = await fetch(url)
     let data = await response.json()
 
