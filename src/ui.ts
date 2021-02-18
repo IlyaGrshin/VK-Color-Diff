@@ -6,6 +6,10 @@ var closestColor = document.getElementsByClassName('closestColor')[0] as HTMLEle
 var select = document.getElementsByClassName('select')[0] as HTMLElement
 var selectMode = document.getElementsByClassName('selectMode')[0] as HTMLSelectElement
 
+let paletteData = {}
+let scheme = {}
+let currentColor = null
+let mapColorsToTokens = {}
 
 window.onload = async () => {
     let selectIndexTest = await getPaletteMode()
@@ -43,34 +47,44 @@ search.addEventListener ('input', () => {
     }
 })
 
-async function searchColor (value: any) {
-    let paletteWeb = await palleteWeb()
-    let palette = []
-    for (let color in paletteWeb) {
-        palette.push(paletteWeb[color])
-    }
+async function palleteFetch() {
+    let palette_mode = ['palette_web', 'palette']
 
-    value = hexChecker(value)
-    let closest = diff.closest(value, palette)
-
-    let closestName = getKeyByValue(paletteWeb, closest)
-    content.innerHTML = closestName
-}
-
-async function palleteWeb () {
-    let palette
-    if (selectMode.selectedIndex == 0) palette = 'palette_web'
-    if (selectMode.selectedIndex == 1) palette = 'palette'
-
-    let url = 'https://raw.githubusercontent.com/VKCOM/Appearance/master/main.valette/' + palette + '.json'
-    let response = await fetch(url)
+    let url = 'https://raw.githubusercontent.com/VKCOM/Appearance/master/main.valette/' + palette_mode[selectMode.selectedIndex] + '.json'
+    let response = await fetch(url, { 
+        mode: 'cors'
+    })
     let data = await response.json()
 
     for (let color in data) {
         data[color] = hexChecker(data[color])
     }
-
     return data
+
+}
+
+async function searchColor (value: any) {
+    if (isEmpty(paletteData)) {
+        paletteData = await palleteFetch()
+    }
+
+    let palette = []
+    for (let color in paletteData) {
+        palette.push(paletteData[color])
+    }
+
+    value = hexChecker(value)
+    let closest = diff.closest(value, palette)
+
+    currentColor = getKeyByValue(paletteData, closest)
+    content.innerHTML = '<span class="currentColor">' + currentColor + '</span>';
+    
+    searchToken().then(tokensArray => {
+        tokensArray.forEach(tokenName => {
+            content.innerHTML += '<span class="token">' + tokenName + '</span>'
+        })
+        
+    })
 }
 
 function hexChecker (color: any) {
@@ -84,7 +98,7 @@ function hexAToRGB (hex: any) {
     return hexToRGB(hex)
 }
 
-  function hexToRGB(hex: any) {
+function hexToRGB(hex: any) {
     var bigint = parseInt(hex, 16)
     var r = (bigint >> 16) & 255
     var g = (bigint >> 8) & 255
@@ -132,7 +146,7 @@ async function getPaletteMode(): Promise<number> {
             }
         })
     })
-  }
+}
   
 function setPaletteMode(id: any) {
     parent.postMessage(
@@ -141,4 +155,41 @@ function setPaletteMode(id: any) {
       },
       '*'
     )
-  }
+}
+
+function isEmpty(obj) {
+    for (let key in obj) {
+      // если тело цикла начнет выполняться - значит в объекте есть свойства
+      return false;
+    }
+    return true;
+}
+
+async function schemeFetch () {
+    let url = 'https://raw.githubusercontent.com/VKCOM/Appearance/master/main.valette/scheme.json'
+    let response = await fetch(url, {
+        mode: 'cors'
+    })
+    let data = await response.json()
+
+    return data
+}
+
+async function searchToken () {
+    if (isEmpty(scheme)) {
+        scheme = await schemeFetch()
+    }
+
+    Object.keys(scheme).forEach(schemeItem => (
+        Object.keys(scheme[schemeItem].colors).forEach(token => {
+            const color = scheme[schemeItem].colors[token].color_identifier;
+
+            if (!mapColorsToTokens[color]) {
+                mapColorsToTokens[color] = [token]
+            } else if (mapColorsToTokens[color].indexOf(token) === -1) {
+                mapColorsToTokens[color].push(token)
+            }
+        })
+    ))
+    return mapColorsToTokens[currentColor]
+}
