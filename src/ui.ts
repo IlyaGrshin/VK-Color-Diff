@@ -1,8 +1,9 @@
+import { util } from './util'
+
 var diff = require('color-diff')
 
 var search = document.getElementsByClassName('search')[0] as HTMLInputElement
 var content = document.getElementsByClassName('content')[0] as HTMLElement
-var closestColor = document.getElementsByClassName('closestColor')[0] as HTMLElement
 var select = document.getElementsByClassName('select')[0] as HTMLElement
 var selectMode = document.getElementsByClassName('selectMode')[0] as HTMLSelectElement
 
@@ -15,6 +16,17 @@ window.onload = async () => {
     let selectIndexTest = await getPaletteMode()
     selectMode.selectedIndex = selectIndexTest
     changeSelectArrowPosition(selectIndexTest)
+
+    let figmaStyles = await getStyles()
+
+    if (util.isEmpty(figmaStyles)) {
+        content.innerHTML = '<span id="saveStyles" class="saveStyles">Save Styles</span>';
+        document.getElementById('saveStyles').addEventListener('click', () => {
+            setStyles(null)
+        })
+    } else {
+        content.innerHTML = '<span class="placeholder">Choose any layer</span>'
+    }
 }
 
 selectMode.addEventListener('change', () => {
@@ -35,7 +47,7 @@ window.addEventListener('message', async (event) => {
         color.g = Math.round(color.g * 255)
         color.b = Math.round(color.b * 255)
         
-        let hex = RGBToHex(color.r, color.g, color.b)
+        let hex = util.RGBToHex(color.r, color.g, color.b)
         search.value = hex.toUpperCase()
         searchColor(hex)
     }
@@ -64,7 +76,7 @@ async function palleteFetch() {
 }
 
 async function searchColor (value: any) {
-    if (isEmpty(paletteData)) {
+    if (util.isEmpty(paletteData)) {
         paletteData = await palleteFetch()
     }
 
@@ -76,7 +88,7 @@ async function searchColor (value: any) {
     value = hexChecker(value)
     let closest = diff.closest(value, palette)
 
-    currentColor = getKeyByValue(paletteData, closest)
+    currentColor = util.getKeyByValue(paletteData, closest)
     content.innerHTML = '<span class="currentColor">' + currentColor + '</span>';
     
     searchToken().then(tokensArray => {
@@ -89,45 +101,8 @@ async function searchColor (value: any) {
 
 function hexChecker (color: any) {
     color = color.replace('#', '')
-    let hex = (color.length > 7) ? hexAToRGB(color) : hexToRGB(color)
+    let hex = (color.length > 7) ? util.hexAToRGB(color) : util.hexToRGB(color)
     return hex
-}
-
-function hexAToRGB (hex: any) {
-    hex = hex.slice(2,8)
-    return hexToRGB(hex)
-}
-
-function hexToRGB(hex: any) {
-    var bigint = parseInt(hex, 16)
-    var r = (bigint >> 16) & 255
-    var g = (bigint >> 8) & 255
-    var b = bigint & 255
-
-    return {
-        'R': r,
-        'G': g,
-        'B': b
-    }
-}
-
-function RGBToHex (r, g, b) {
-    r = r.toString(16)
-    g = g.toString(16)
-    b = b.toString(16)
-  
-    if (r.length == 1)
-      r = '0' + r
-    if (g.length == 1)
-      g = '0' + g
-    if (b.length == 1)
-      b = '0' + b
-  
-    return r + g + b
-}
-
-function getKeyByValue(object, value) {
-    return Object.keys(object).find(key => object[key] === value)
 }
 
 async function getPaletteMode(): Promise<number> {
@@ -157,14 +132,6 @@ function setPaletteMode(id: any) {
     )
 }
 
-function isEmpty(obj) {
-    for (let key in obj) {
-      // если тело цикла начнет выполняться - значит в объекте есть свойства
-      return false;
-    }
-    return true;
-}
-
 async function schemeFetch () {
     let url = 'https://raw.githubusercontent.com/VKCOM/Appearance/master/main.valette/scheme.json'
     let response = await fetch(url, {
@@ -176,7 +143,11 @@ async function schemeFetch () {
 }
 
 async function searchToken () {
-    if (isEmpty(scheme)) {
+    let figmaStyles = await getStyles();
+    
+    //figmaStyles.map()
+
+    if (util.isEmpty(scheme)) {
         scheme = await schemeFetch()
     }
 
@@ -191,5 +162,34 @@ async function searchToken () {
             }
         })
     ))
+
+
     return mapColorsToTokens[currentColor]
+}
+
+async function getStyles() {
+    return new Promise((resolve) => {
+        parent.postMessage(
+        {
+            pluginMessage: { type: 'getStyles' },
+        },
+        '*'
+      )
+        window.addEventListener('message', async (event) => {
+            if (event.data.pluginMessage && event.data.pluginMessage.type === 'getStyles') {
+                let data = event.data.pluginMessage.value
+                if (data === undefined) data = null
+                resolve(data)
+            }
+        })
+    })
+}
+  
+function setStyles(value) {
+    parent.postMessage(
+      {
+        pluginMessage: { type: 'setStyles', value },
+      },
+      '*'
+    )
 }

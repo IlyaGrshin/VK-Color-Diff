@@ -10,6 +10,23 @@ figma.ui.onmessage = async (action) => {
             figma.clientStorage.getAsync('paletteMode').then((value) => {
                 figma.ui.postMessage({ type: 'getPaletteMode', value })
             })
+
+        case 'setStyles':
+            let styles = figma.getLocalPaintStyles()
+            let mapStyles = {}
+
+            styles.map(key => {
+                mapStyles[key.name] = key.key
+            })
+
+            //await figma.clientStorage.setAsync('styles', action.value)
+            await figma.clientStorage.setAsync('styles', mapStyles)
+            break;
+    
+        case 'getStyles':
+            figma.clientStorage.getAsync('styles').then((value) => {
+                figma.ui.postMessage({ type: 'getStyles', value })
+            })
     }
 }
 
