@@ -23,7 +23,7 @@
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {
-    "@types/node": "^14.14.28",
+    "@types/node": "^14.14.39",
     "color-diff": "^1.2.0"
   }
 }
