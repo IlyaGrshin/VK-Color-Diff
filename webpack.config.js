@@ -1,8 +1,8 @@
-const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin')
+const InlineChunkHtmlPlugin = require('react-dev-utils/InlineChunkHtmlPlugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const path = require('path')
 const webpack = require('webpack')
-const merge = require('webpack-merge')
+const { merge } = require('webpack-merge')
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -20,8 +20,8 @@ const config = {
   module: {
     rules: [
       {test: /\.tsx?$/, use: 'ts-loader', exclude: /node_modules/},
-      {test: /\.css$/, loader: [{loader: 'style-loader'}, {loader: 'css-loader'}]},
-      {test: /\.(png|jpg|gif|webp|svg|zip)$/, loader: [{loader: 'url-loader'}]},
+      {test: /\.css$/, use: ['style-loader', 'css-loader']},
+      {test: /\.(png|jpg|gif|webp|svg|zip)$/, loader: 'url-loader' },
     ],
   },
 
@@ -48,8 +48,10 @@ const config = {
       filename: 'ui.html',
       inlineSource: '.(js)$',
       chunks: ['ui'],
+      cache: false,
+      scriptLoading: 'blocking',
     }),
-    new HtmlWebpackInlineSourcePlugin(),
+    new InlineChunkHtmlPlugin(HtmlWebpackPlugin, [/.*/]),
   ],
 };
 
